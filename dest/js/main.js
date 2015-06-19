@@ -352,6 +352,122 @@ for (var i in res) {
   g_resources.push(res[i]);
 }
 
+var Grid = cc.Class.extend({
+
+  ctor: function (width, height) {
+
+    this.width = width;
+    this.height = height;
+    this.cells = this.empty();
+  }
+
+});
+
+Grid.prototype.empty = function () {
+  var cells = [];
+  for (var x = 0; x < this.width; x++) {
+    var row = cells[x] = [];
+    for (var y = 0; y < this.height; y++) {
+      row.push(null);
+    }
+  }
+  return cells;
+};
+
+Grid.prototype.insertTile = function(tile){
+  this.cells[tile.x][tile.y] = tile;
+};
+
+Grid.prototype.removeTile = function(tile){
+  this.cells[tile.x][tile.y] = null;
+};
+
+Grid.prototype.cellOccupied = function (cell) {
+  return !!this.cellContent(cell);
+};
+
+Grid.prototype.cellContent = function (cell) {
+  if (this.withinBounds(cell)) {
+    return this.cells[cell.x][cell.y];
+  } else {
+    return null;
+  }
+};
+
+Grid.prototype.withinBounds = function (position) {
+  return position.x >= 0 && position.x < this.width &&
+    position.y >= 0 && position.y < this.height;
+};
+
+Grid.prototype.eachCell = function (callback) {
+  for (var x = 0; x < this.width; x++) {
+    for (var y = 0; y < this.height; y++) {
+      callback(this.cells[x][y]);
+    }
+  }
+};
+
+
+var Tile = cc.Class.extend({
+
+  ctor: function (position, type) {
+
+    this.position = position;
+    this.x = position.x;
+    this.y = position.y;
+    this.type = type || '001';
+
+  }
+
+});
+
+function formatStr(num, length) {
+  num = num.toString();
+  var len = num.length;
+  var delta = length - len;
+  while (delta-- > 0) {
+    num = '0' + num;
+  }
+  return num;
+}
+
+function randomArr(arr) {
+  var len  = arr.length;
+  for (var i = 0; i < len; i++) {
+    var iRand = parseInt(len * Math.random());
+    var temp = arr[i];
+    arr[i] = arr[iRand];
+    arr[iRand] = temp;
+  }
+  return arr;
+}
+
+function addClickListener(sprite, callback, context) {
+  cc.eventManager.addListener({
+    event: cc.EventListener.TOUCH_ONE_BY_ONE,
+    swallowTouches: true,
+    onTouchBegan: function (touch, event) {
+      var target = event.getCurrentTarget();
+      var locationInNode = target.convertToNodeSpace(touch.getLocation());
+      var s = target.getContentSize();
+      var rect = cc.rect(0, 0, s.width, s.height);
+
+      if (cc.rectContainsPoint(rect, locationInNode)) {
+        return true;
+      }
+      return false;
+    },
+    onTouchMoved: function (touch, event) {
+
+    },
+    onTouchEnded: function (touch, event) {
+      var target = event.getCurrentTarget();
+      callback && callback.call(context, target);
+      //me.selectTile(target);
+    }
+  }, sprite);
+}
+
 var GPBackgroundLayer = cc.LayerColor.extend({
 
   ctor: function (color) {
@@ -1051,122 +1167,6 @@ var GPTouchLayer = cc.Layer.extend({
 
   }
 });
-
-var Grid = cc.Class.extend({
-
-  ctor: function (width, height) {
-
-    this.width = width;
-    this.height = height;
-    this.cells = this.empty();
-  }
-
-});
-
-Grid.prototype.empty = function () {
-  var cells = [];
-  for (var x = 0; x < this.width; x++) {
-    var row = cells[x] = [];
-    for (var y = 0; y < this.height; y++) {
-      row.push(null);
-    }
-  }
-  return cells;
-};
-
-Grid.prototype.insertTile = function(tile){
-  this.cells[tile.x][tile.y] = tile;
-};
-
-Grid.prototype.removeTile = function(tile){
-  this.cells[tile.x][tile.y] = null;
-};
-
-Grid.prototype.cellOccupied = function (cell) {
-  return !!this.cellContent(cell);
-};
-
-Grid.prototype.cellContent = function (cell) {
-  if (this.withinBounds(cell)) {
-    return this.cells[cell.x][cell.y];
-  } else {
-    return null;
-  }
-};
-
-Grid.prototype.withinBounds = function (position) {
-  return position.x >= 0 && position.x < this.width &&
-    position.y >= 0 && position.y < this.height;
-};
-
-Grid.prototype.eachCell = function (callback) {
-  for (var x = 0; x < this.width; x++) {
-    for (var y = 0; y < this.height; y++) {
-      callback(this.cells[x][y]);
-    }
-  }
-};
-
-
-var Tile = cc.Class.extend({
-
-  ctor: function (position, type) {
-
-    this.position = position;
-    this.x = position.x;
-    this.y = position.y;
-    this.type = type || '001';
-
-  }
-
-});
-
-function formatStr(num, length) {
-  num = num.toString();
-  var len = num.length;
-  var delta = length - len;
-  while (delta-- > 0) {
-    num = '0' + num;
-  }
-  return num;
-}
-
-function randomArr(arr) {
-  var len  = arr.length;
-  for (var i = 0; i < len; i++) {
-    var iRand = parseInt(len * Math.random());
-    var temp = arr[i];
-    arr[i] = arr[iRand];
-    arr[iRand] = temp;
-  }
-  return arr;
-}
-
-function addClickListener(sprite, callback, context) {
-  cc.eventManager.addListener({
-    event: cc.EventListener.TOUCH_ONE_BY_ONE,
-    swallowTouches: true,
-    onTouchBegan: function (touch, event) {
-      var target = event.getCurrentTarget();
-      var locationInNode = target.convertToNodeSpace(touch.getLocation());
-      var s = target.getContentSize();
-      var rect = cc.rect(0, 0, s.width, s.height);
-
-      if (cc.rectContainsPoint(rect, locationInNode)) {
-        return true;
-      }
-      return false;
-    },
-    onTouchMoved: function (touch, event) {
-
-    },
-    onTouchEnded: function (touch, event) {
-      var target = event.getCurrentTarget();
-      callback && callback.call(context, target);
-      //me.selectTile(target);
-    }
-  }, sprite);
-}
 
 var GamePlayScene  = cc.Scene.extend({
   onEnter:function () {
