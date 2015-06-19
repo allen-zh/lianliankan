@@ -431,6 +431,16 @@ function formatStr(num, length) {
   return num;
 }
 
+function randomArr(arr) {
+  var len  = arr.length;
+  for (var i = 0; i < len; i++) {
+    var iRand = parseInt(len * Math.random());
+    var temp = arr[i];
+    arr[i] = arr[iRand];
+    arr[iRand] = temp;
+  }
+  return arr;
+}
 
 function addClickListener(sprite, callback, context) {
   cc.eventManager.addListener({
@@ -637,15 +647,26 @@ var GPTouchLayer = cc.Layer.extend({
       return false;
     }
     var types = [];
-    for (var i = 0; i < nodes / 2; i++) {
+    var len = nodes / 2;
+    var half = len / 2 | 0;
+
+    var begin = Math.random() * GC.type_count | 0 + 1;
+    for (var i = 0; i < half; i++) {
+      var type = formatStr(begin, 3);
+      types.push(type);
+      types.push(type);
+      if (begin >= GC.type_count) {
+        begin = 0;
+      }
+      begin++;
+    }
+    for (var i = half; i < len; i++) {
       var type = Math.random() * GC.type_count | 0 + 1;
       type = formatStr(type, 3);
       types.push(type);
       types.push(type);
     }
-    return types.sort(function () {
-      return Math.random() > 0.5 ? -1 : 1;
-    });
+    return randomArr(types);
   },
   addTile: function (position, type) {
     var tile = new Tile(position, type);
@@ -1135,11 +1156,14 @@ var GPTouchLayer = cc.Layer.extend({
     this.texTilesBatch.removeAllChildren();
     this.texPropBatch.removeAllChildren();
     this.texResultBatch.removeAllChildren();
+    this.texBoomBatch.removeAllChildren();
+    this.texPipeBatch.removeAllChildren();
 
     this.removeChild(this.timelineSp);
     this.removeChild(this.mapInfoSp);
     this.removeChild(this.scoreSp);
     this.removeChild(this.restSp);
+    this.removeChild(this.selectNode);
 
   }
 });
