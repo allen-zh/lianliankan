@@ -8,6 +8,16 @@ function formatStr(num, length) {
   return num;
 }
 
+function randomArr(arr) {
+  var len  = arr.length;
+  for (var i = 0; i < len; i++) {
+    var iRand = parseInt(len * Math.random());
+    var temp = arr[i];
+    arr[i] = arr[iRand];
+    arr[iRand] = temp;
+  }
+  return arr;
+}
 
 function addClickListener(sprite, callback, context) {
   cc.eventManager.addListener({
