@@ -14,7 +14,8 @@ var path = {
   css: 'src/**/*.css',
   html: 'src/**/*.html',
   image: 'src/image/**/*',
-  music: ['src/**/*.mp3', 'src/**/*.ogg']
+  music: ['src/**/*.mp3', 'src/**/*.ogg'],
+  icon: 'src/favicon.ico'
 };
 
 var dest = 'dest/'
@@ -47,6 +48,11 @@ gulp.task('music:copy', function () {
 
 gulp.task('json:copy', function () {
   return gulp.src(path.json)
+    .pipe(gulp.dest(dest));
+});
+
+gulp.task('icon:copy', function () {
+  return gulp.src(path.icon)
     .pipe(gulp.dest(dest));
 });
 
@@ -144,7 +150,7 @@ gulp.task('default', ['clean'], function () {
   gulp.start('compile');
 });
 
-gulp.task('compile', ['js:copy', 'css:copy', 'html:copy', 'json:copy', 'music:copy', 'image:copy', 'cocos2d:compile']);
+gulp.task('compile', ['js:copy', 'css:copy', 'html:copy', 'json:copy', 'music:copy', 'image:copy', 'icon:copy', 'cocos2d:compile']);
 
 gulp.task('serve', ['clean'], function () {
   gulp.start('connect');
