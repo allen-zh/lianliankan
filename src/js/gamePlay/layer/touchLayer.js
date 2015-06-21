@@ -351,6 +351,7 @@ var GPTouchLayer = cc.Layer.extend({
     cc.audioEngine.playEffect(res.boom_music);
 
     if (!this.checkIsWin() && !this.checkMapResolve()) {
+      //TODO 新增一个Sprite去展示无解情况，alert会阻塞浏览器，应该废弃
       alert('地图无解');
       this.rebuildTiles();
     }

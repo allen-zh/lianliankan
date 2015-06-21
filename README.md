@@ -1,5 +1,5 @@
 # lianliankan
-仿QQ连连看
+基于cocos2djs实现，模仿QQ连连看游戏效果，寻径算法较QQ连连看有所优化
 
 [快来体验吧](http://snowandmumu.github.io/lianliankan/dest)
 
