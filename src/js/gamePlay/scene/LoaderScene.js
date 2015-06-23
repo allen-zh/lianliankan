@@ -119,32 +119,30 @@ var MyLoaderScene = cc.Scene.extend({
         self.unschedule(self._startLoading);
         var res = self.resources;
 
-        var DUATION = 1000;
-        var delta = 690 / 2000;
-        var interval = 16;
+        var DUATION = 1200;
+        var delta = 345 / DUATION;
         var time = 0;
 
-        var timer = setInterval(function(){
+        this.schedule(function(dt){
+            var ms = dt * 1000;
             self._logo.setPosition(
                 cc.visibleRect.center.x, 
-                self._logo.y + interval * delta
+                self._logo.y + ms * delta
             );
-            time += interval;
+            time += ms;
             if(time >= DUATION){
-                
-                clearInterval(timer);
+                self.unscheduleAllCallbacks();
                 self._loadingAnimateDone = true;
                 if(self.cb && self._loadResourceDone){
                     self.cb();
                 }
             }
-        }, interval);
+        });
 
         cc.loader.load(res,
             function (result, count, loadedCount) {
                 var percent = (loadedCount / count * 100) | 0;
                 percent = Math.min(percent, 100);
-                // self._logo.setPosition(cc.visibleRect.center.x, cc.visibleRect.center.x + 200 * percent / 100);
                 self._label.setString("Loading... " + percent + "%");
             }, function () {
                 
