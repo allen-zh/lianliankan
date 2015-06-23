@@ -1,5 +1,9 @@
 cc.game.onStart = function(){
 
+  // newLoaderScene.onEnter = function(){
+  //   this._super();
+  // };
+
   cc.view.enableRetina(true);
 
   cc.view.adjustViewPort(true);
@@ -8,9 +12,11 @@ cc.game.onStart = function(){
   //
   cc.view.resizeWithBrowserSize(true);
 
-  cc.LoaderScene.preload(g_resources, function () {
+  // cc.LoaderScene.preload(g_resources, function () {
+  MyLoaderScene.preload(g_resources, function () {
     //cc.director.setProjection(cc.Director.PROJECTION_2D);
     cc.director.runScene(new GamePlayScene());
   }, this);
 };
+
 cc.game.run();
