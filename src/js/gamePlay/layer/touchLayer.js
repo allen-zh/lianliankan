@@ -156,10 +156,10 @@ var GPTouchLayer = cc.Layer.extend({
     }
     var types = [];
     var len = nodes / 2;
-    var half = len / 2 | 0;
+    var typeLen = Math.min(GC.type_count, len * 2 / 3 | 0);
 
     var begin = Math.random() * GC.type_count | 0 + 1;
-    for (var i = 0; i < half; i++) {
+    for (var i = 0; i < typeLen; i++) {
       var type = formatStr(begin, 3);
       types.push(type);
       types.push(type);
@@ -168,7 +168,7 @@ var GPTouchLayer = cc.Layer.extend({
       }
       begin++;
     }
-    for (var i = half; i < len; i++) {
+    for (var i = typeLen; i < len; i++) {
       var type = Math.random() * GC.type_count | 0 + 1;
       type = formatStr(type, 3);
       types.push(type);
