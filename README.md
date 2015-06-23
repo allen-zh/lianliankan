@@ -33,3 +33,7 @@ gulp serve
 
 - [ustbhuangyi](https://github.com/ustbhuangyi)
 - [snowandmumu](https://github.com/snowandmumu)
+
+## License
+
+MIT
