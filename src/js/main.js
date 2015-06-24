@@ -15,7 +15,7 @@ cc.game.onStart = function(){
   // cc.LoaderScene.preload(g_resources, function () {
   MyLoaderScene.preload(g_resources, function () {
     //cc.director.setProjection(cc.Director.PROJECTION_2D);
-    cc.director.runScene(new GamePlayScene());
+    cc.director.runScene(new MainMenuScene());
   }, this);
 };
 
