@@ -19,7 +19,7 @@ var MainMenuLayer = cc.Layer.extend({
 
     this.addBackgroundLayer();
 
-    //this.addTouchLayer();
+    this.addTouchLayer();
 
   },
 
@@ -42,7 +42,7 @@ var MainMenuLayer = cc.Layer.extend({
   },
 
   addTouchLayer : function(){
-    this.touchLayer = new GPTouchLayer();
+    this.touchLayer = new MMTouchLayer();
     this.addChild(this.touchLayer);
   }
 
