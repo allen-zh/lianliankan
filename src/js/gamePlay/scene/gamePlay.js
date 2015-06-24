@@ -15,25 +15,10 @@ var GamePlayLayer = cc.Layer.extend({
   ctor : function(){
     this._super();
 
-    this.addCache();
-
     this.addBackgroundLayer();
 
     this.addTouchLayer();
   },
-
-  addCache : function(){
-
-    cc.spriteFrameCache.addSpriteFrames(res.tile_plist);
-    cc.spriteFrameCache.addSpriteFrames(res.pipe_plist);
-    cc.spriteFrameCache.addSpriteFrames(res.boom_plist);
-    cc.spriteFrameCache.addSpriteFrames(res.icon_plist);
-    cc.spriteFrameCache.addSpriteFrames(res.result_plist);
-    cc.spriteFrameCache.addSpriteFrames(res.prop_plist);
-    cc.spriteFrameCache.addSpriteFrames(res.map_plist);
-
-  },
-
 
   addBackgroundLayer : function(){
 

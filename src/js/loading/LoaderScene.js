@@ -89,9 +89,8 @@ var MyLoaderScene = cc.Scene.extend({
    * custom onEnter
    */
   onEnter: function () {
-    var self = this;
-    cc.Node.prototype.onEnter.call(self);
-    self.schedule(self._startLoading, 0);
+    cc.Node.prototype.onEnter.call(this);
+    this.schedule(this._startLoading, 0);
   },
   /**
    * custom onExit
@@ -118,7 +117,7 @@ var MyLoaderScene = cc.Scene.extend({
     var self = this;
     self.unschedule(self._startLoading);
 
-    var actionMove = cc.moveTo(1, cc.p(self._logo.x, self._logo.y + 345));
+    var actionMove = cc.moveTo(2, cc.p(self._logo.x, self._logo.y + 345));
     var seqAction = cc.sequence(actionMove, cc.callFunc(function () {
       self._loadingAnimateDone = true;
       if (self.cb && self._loadResourceDone) {

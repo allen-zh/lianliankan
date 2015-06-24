@@ -1,4 +1,4 @@
-var GPBackgroundLayer = cc.LayerColor.extend({
+var MMBackgroundLayer = cc.LayerColor.extend({
 
   ctor: function (color) {
 
@@ -9,13 +9,13 @@ var GPBackgroundLayer = cc.LayerColor.extend({
   },
 
   initBackground: function () {
-    var gameBg = new cc.Sprite(res.gameBg_png);
-    gameBg.attr({
+    var menuBg = new cc.Sprite(res.menuBg_png);
+    menuBg.attr({
       x: GC.w_2,
       y: GC.h_2
     });
 
-    this.addChild(gameBg);
+    this.addChild(menuBg);
 
   }
 });
