@@ -1,6 +1,7 @@
 'use strict';
 
 var gulp = require('gulp');
+var shell = require('gulp-shell');
 var concat = require('gulp-concat');
 
 var browserSync = require('browser-sync');
@@ -14,6 +15,7 @@ var path = {
   css: 'src/**/*.css',
   html: 'src/**/*.html',
   image: 'src/image/**/*',
+  vendor: 'src/vendor/**/*',
   music: ['src/**/*.mp3', 'src/**/*.ogg']
 };
 
@@ -28,6 +30,11 @@ gulp.task('js:copy', function () {
 gulp.task('css:copy', function () {
   return gulp.src(path.css)
     .pipe(gulp.dest(dest));
+});
+
+gulp.task('vendor:copy', function () {
+  return gulp.src(path.vendor)
+    .pipe(gulp.dest(dest + '/vendor'));
 });
 
 gulp.task('html:copy', function () {
@@ -144,8 +151,18 @@ gulp.task('default', ['clean'], function () {
   gulp.start('compile');
 });
 
-gulp.task('compile', ['js:copy', 'css:copy', 'html:copy', 'json:copy', 'music:copy', 'image:copy', 'cocos2d:compile']);
+gulp.task('compile', ['js:copy', 'css:copy', 'vendor:copy', 'html:copy', 'json:copy', 'music:copy', 'image:copy', 'cocos2d:compile']);
 
 gulp.task('serve', ['clean'], function () {
   gulp.start('connect');
 });
+
+gulp.task('serveAsServer', ['clean'], function () {
+  gulp.start('connect');
+  gulp.start('server');
+});
+
+
+gulp.task('server', shell.task([
+  'node server/app.js'
+]));
