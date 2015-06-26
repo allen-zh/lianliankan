@@ -768,9 +768,9 @@ var GPTouchLayer = cc.Layer.extend({
   },
   createOpponentTileSprite: function (tile) {
     var tileSp = new TileSprite(tile);
-    tileSp.x = GC.grid.x + tile.x * tileSp.width / 7 + tileSp.width / 14;
-    tileSp.y = GC.grid.y - tile.y * tileSp.height / 7 - tileSp.height / 14;
-    tileSp.scale(1 / 7);
+    tileSp.x = GC.opponent.x + tile.x * tileSp.width / 6 + tileSp.width / 12;
+    tileSp.y = GC.opponent.y - tile.y * tileSp.height / 6 - tileSp.height / 12;
+    tileSp.setScale(2 / 12);
     this.texOpponentTilesBatch.addChild(tileSp);
   }
 });
