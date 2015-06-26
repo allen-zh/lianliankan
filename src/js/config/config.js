@@ -1,8 +1,21 @@
 var GC = GC || {};
 
+GC.GAME_MODE = {
+  SINGLE: 0,
+  MULTI: 1
+};
+
 GC.GAME_STATE = {
+  UNINIT: 0,
   PLAY: 1,
   OVER: 2
+};
+
+GC.PLAYER_STATE = {
+  CONNECTED: 0,
+  WAITING: 1,
+  OFFLINE: 2,
+  ABANDONED: 3
 };
 
 GC.winSize = cc.size(800, 600);
