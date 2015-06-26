@@ -88,8 +88,8 @@ GC.continueHit = {
 };
 
 GC.opponent = {
-  x: 12,
-  y: 600
+  x: 20,
+  y: GC.h - 62
 };
 
 GC.type_count = 50;
