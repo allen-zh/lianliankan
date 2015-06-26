@@ -77,11 +77,17 @@ var GPTouchLayer = cc.Layer.extend({
     //单人模式或者主机建图
     if (this.mode === GC.GAME_MODE.SINGLE || this.host) {
       this.initMap();
+
       this.addMapInfo();
+
       this.initTiles();
+
       if (!this.checkMapResolve()) {
         this.rebuildTiles();
       }
+      this.addRest();
+
+      this.addProps();
       //多人对战，主机需要通知对方地图
       if (this.host) {
         var msg = {
@@ -95,12 +101,8 @@ var GPTouchLayer = cc.Layer.extend({
       }
 
     } else {
-      var me = this;
-      events.on('init', function (data) {
-        me.map = data.map;
-        me.initTilesByCells(data.cells);
-        me.addMapInfo();
-      });
+
+      events.on('init', this.initByOpponent, this);
     }
 
     this.addScore();
@@ -109,14 +111,23 @@ var GPTouchLayer = cc.Layer.extend({
 
     this.addTimeline();
 
-    this.addRest();
-
-    this.addProps();
-
     this.scheduleUpdate();
 
     this.playMusic();
 
+  },
+  initByOpponent: function (data) {
+    this.map = data.map;
+    
+    this.rest = this.map.tileNum;
+
+    this.initTilesByCells(data.cells);
+
+    this.addMapInfo();
+
+    this.addRest();
+
+    this.addProps();
   },
   update: function (dt) {
 
@@ -167,7 +178,7 @@ var GPTouchLayer = cc.Layer.extend({
       var column = cells[i];
       for (var j = 0; j < column.length; j++) {
         var tile = column[j];
-        if(tile) {
+        if (tile) {
           this.addTile(tile.position, this.type);
         }
       }
