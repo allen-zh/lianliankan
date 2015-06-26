@@ -49,6 +49,7 @@ var MMTouchLayer = cc.Layer.extend({
   playMultiGame: function () {
     proxy.connectServer();
     var host = false;
+
     events.on('player.waiting', function () {
       host = true;
       var lb = new cc.LabelTTF('正在等待其它玩家加入..', 'monospace', 16);
@@ -58,8 +59,9 @@ var MMTouchLayer = cc.Layer.extend({
       });
       this.addChild(lb);
     }, this);
+
     events.on('player.conected', function () {
-      cc.director.runScene(new cc.TransitionFade(1.2, new GamePlayScene(host)));
+      cc.director.runScene(new cc.TransitionFade(1.2, new GamePlayScene(GC.GAME_MODE.MULTI, host)));
     });
     //cc.director.runScene(new cc.TransitionFade(1.2, new GamePlayScene()));
   }

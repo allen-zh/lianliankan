@@ -69,7 +69,7 @@ GC.timeline = {
 };
 
 GC.rest = {
-  x: 450,
+  x: 460,
   y: 22
 };
 

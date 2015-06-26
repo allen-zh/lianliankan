@@ -6,6 +6,7 @@ var GamePlayScene = cc.Scene.extend({
   },
   onEnter: function () {
 
+    this._super();
     var layer = new GamePlayLayer(this.mode, this.host);
     this.addChild(layer);
   }
