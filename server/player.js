@@ -69,7 +69,7 @@ Player.prototype.send = function (data, type) {
 
   if (!this.socket) return false;
 
-  type = type || 'news';
+  type = type || 'msg';
   this.socket.emit(type, data);
 };
 
@@ -109,6 +109,13 @@ Player.prototype.disconnect = function (flag) {
 function onMsg(data) {
   //处理user关心的事件
   //如果下线 状态置为4
+  var cells = data.data.cells;
+  for (var i = 0; i < cells.length; i++) {
+    var column = cells[i];
+    for (var j = 0; j < column.length; j++) {
+      console.log(column[j]);
+    }
+  }
   if (data.cmd && data.cmd === CMD_OFFLINE) {
     this.disconnect();
   }
