@@ -22,6 +22,9 @@ var GPTouchLayer = cc.Layer.extend({
     this.texTilesBatch = new cc.SpriteBatchNode(texTiles);
     this.addChild(this.texTilesBatch);
 
+    this.texOpponentTilesBatch = new cc.SpriteBatchNode(texTiles);
+    this.addChild(this.texOpponentTilesBatch);
+
     var texPipe = cc.textureCache.addImage(res.pipe_png);
     this.texPipeBatch = new cc.SpriteBatchNode(texPipe);
     this.addChild(this.texPipeBatch);
@@ -98,6 +101,8 @@ var GPTouchLayer = cc.Layer.extend({
           }
         };
         proxy.sendMsg(msg);
+
+        this.syncCurrentState();
       }
 
     } else {
@@ -115,6 +120,10 @@ var GPTouchLayer = cc.Layer.extend({
 
     this.playMusic();
 
+    if (this.mode === GC.GAME_MODE.MULTI) {
+      this.bindEvent();
+    }
+
   },
   initByOpponent: function (data) {
     this.map = data.map;
@@ -128,6 +137,8 @@ var GPTouchLayer = cc.Layer.extend({
     this.addRest();
 
     this.addProps();
+
+    this.syncCurrentState();
   },
   update: function (dt) {
 
@@ -246,6 +257,7 @@ var GPTouchLayer = cc.Layer.extend({
         this.selectedTileSp = null;
         this.selectNode.visible = false;
 
+        this.syncCurrentState();
         return;
       }
     }
@@ -571,6 +583,7 @@ var GPTouchLayer = cc.Layer.extend({
         target.update(--this.resetCount);
         this.rebuildTiles();
         cc.audioEngine.playEffect(res.flystar_music);
+        this.syncCurrentState(true);
       }
     }, this);
 
@@ -585,6 +598,7 @@ var GPTouchLayer = cc.Layer.extend({
         target.update(--this.compassCount);
         this.autoDelete();
         cc.audioEngine.playEffect(res.flystar_music);
+        this.syncCurrentState(true);
       }
     }, this);
 
@@ -718,5 +732,45 @@ var GPTouchLayer = cc.Layer.extend({
     this.removeChild(this.restSp);
     this.removeChild(this.selectNode);
 
+  },
+  bindEvent: function () {
+    events.on('sync', this.drawOpponent, this);
+  },
+  syncCurrentState: function (useProp) {
+    var msg = {
+      type: 'sync',
+      data: {
+        useProp: useProp,
+        continueHit: this.continueHit,
+        cells: this.grid.cells
+      }
+    };
+    proxy.sendMsg(msg);
+  },
+  drawOpponent: function (data) {
+    this.texOpponentTilesBatch.removeAllChildren();
+    this.opponentGrid = new Grid(GC.grid.width, GC.grid.height);
+    var cells = data.cells;
+    for (var i = 0; i < cells.length; i++) {
+      var column = cells[i];
+      for (var j = 0; j < column.length; j++) {
+        var tile = column[j];
+        if (tile) {
+          this.addOpponentTile(tile.position, tile.type);
+        }
+      }
+    }
+  },
+  addOpponentTile: function (position, type) {
+    var tile = new Tile(position, type);
+    this.opponentGrid.insertTile(tile);
+    this.createOpponentTileSprite(tile);
+  },
+  createOpponentTileSprite: function (tile) {
+    var tileSp = new TileSprite(tile);
+    tileSp.x = GC.grid.x + tile.x * tileSp.width / 7 + tileSp.width / 14;
+    tileSp.y = GC.grid.y - tile.y * tileSp.height / 7 - tileSp.height / 14;
+    tileSp.scale(1 / 7);
+    this.texOpponentTilesBatch.addChild(tileSp);
   }
 });
