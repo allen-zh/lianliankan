@@ -1,5 +1,5 @@
 var res = {
-  background: 'image/gameBg.jpg',
+  gameBg_png: 'image/gameBg.jpg',
   tile_png: 'image/tile.png',
   tile_plist: 'image/tile.plist',
   pipe_png: 'image/pipe.png',
@@ -14,6 +14,7 @@ var res = {
   prop_plist: 'image/prop.plist',
   map_png: 'image/map.png',
   map_plist: 'image/map.plist',
+  menuBg_png: 'image/menuBg.jpg',
 
   bg_music: 'music/bg.mp3',
   boom_music: 'music/boom.mp3',

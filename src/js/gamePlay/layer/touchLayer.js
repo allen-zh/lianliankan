@@ -1,10 +1,13 @@
 var g_GPTouchLayer;
 
 var GPTouchLayer = cc.Layer.extend({
-  ctor: function () {
+  ctor: function (mode, host) {
     this._super();
 
     g_GPTouchLayer = this;
+
+    this.mode = mode;
+    this.host = host;
 
     this.initBatchNode();
 
@@ -71,30 +74,60 @@ var GPTouchLayer = cc.Layer.extend({
 
     this.compassCount = GC.compass.count;
 
-    this.initMap();
+    //单人模式或者主机建图
+    if (this.mode === GC.GAME_MODE.SINGLE || this.host) {
+      this.initMap();
 
-    this.addMapInfo();
+      this.addMapInfo();
+
+      this.initTiles();
+
+      if (!this.checkMapResolve()) {
+        this.rebuildTiles();
+      }
+      this.addRest();
+
+      this.addProps();
+      //多人对战，主机需要通知对方地图
+      if (this.host) {
+        var msg = {
+          type: 'init',
+          data: {
+            map: this.map,
+            cells: this.grid.cells
+          }
+        };
+        proxy.sendMsg(msg);
+      }
+
+    } else {
+
+      events.on('init', this.initByOpponent, this);
+    }
 
     this.addScore();
-
-    this.initTiles();
-
-    if (!this.checkMapResolve()) {
-      this.rebuildTiles();
-    }
 
     this.initSelectRect();
 
     this.addTimeline();
 
-    this.addRest();
-
-    this.addProps();
-
     this.scheduleUpdate();
 
     this.playMusic();
 
+  },
+  initByOpponent: function (data) {
+    this.map = data.map;
+    
+    this.rest = this.map.tileNum;
+
+    this.initTilesByCells(data.cells);
+
+    this.addMapInfo();
+
+    this.addRest();
+
+    this.addProps();
   },
   update: function (dt) {
 
@@ -136,6 +169,17 @@ var GPTouchLayer = cc.Layer.extend({
           if (row[j] === -1) {
             this.addTile({x: j, y: i}, types.pop());
           }
+        }
+      }
+    }
+  },
+  initTilesByCells: function (cells) {
+    for (var i = 0; i < cells.length; i++) {
+      var column = cells[i];
+      for (var j = 0; j < column.length; j++) {
+        var tile = column[j];
+        if (tile) {
+          this.addTile(tile.position, this.type);
         }
       }
     }
