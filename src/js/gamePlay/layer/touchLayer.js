@@ -118,7 +118,7 @@ var GPTouchLayer = cc.Layer.extend({
   },
   initByOpponent: function (data) {
     this.map = data.map;
-    
+
     this.rest = this.map.tileNum;
 
     this.initTilesByCells(data.cells);
@@ -179,7 +179,7 @@ var GPTouchLayer = cc.Layer.extend({
       for (var j = 0; j < column.length; j++) {
         var tile = column[j];
         if (tile) {
-          this.addTile(tile.position, this.type);
+          this.addTile(tile.position, tile.type);
         }
       }
     }

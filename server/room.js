@@ -49,6 +49,7 @@ function onConnect() {
     waiting = null;
   } else {
     waiting = this;
+    this.sendWaiting();
   }
 }
 
