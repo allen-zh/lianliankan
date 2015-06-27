@@ -39,7 +39,7 @@ function onMsg(msg) {
 }
 
 function onConnect() {
-
+  console.log(waiting);
   //consolelog(this.uid+' login:');
   if (waiting && waiting != this) {
     consolelog(this.uid, "<=>", waiting.uid);
