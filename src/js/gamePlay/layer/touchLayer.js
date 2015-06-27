@@ -60,6 +60,7 @@ var GPTouchLayer = cc.Layer.extend({
         };
         proxy.sendMsg(msg);
 
+        this.stopMusic();
         this.unbindEvent();
       }
       cc.director.runScene(new cc.TransitionFade(1.2, new MainMenuScene()));
@@ -785,6 +786,8 @@ var GPTouchLayer = cc.Layer.extend({
   onAbandoned: function () {
     if (this.state === GC.GAME_STATE.PLAY) {
       this.gameOver(true);
+      this.texOpponentTilesBatch.removeAllChildren();
+      this.removeChild(this.lbOpponentRest);
     } else {
       this.unbindEvent();
       cc.director.runScene(new cc.TransitionFade(1.2, new MainMenuScene()));
