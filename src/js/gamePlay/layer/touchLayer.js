@@ -54,8 +54,15 @@ var GPTouchLayer = cc.Layer.extend({
     this.texIconBatch.addChild(startSp);
 
     addClickListener(startSp, function () {
-      this.dispose();
-      this.initGame();
+      if (this.mode === GC.GAME_MODE.MULTI) {
+        var msg = {
+          cmd: 'offline'
+        };
+        proxy.sendMsg(msg);
+
+        this.unbindEvent();
+      }
+      cc.director.runScene(new cc.TransitionFade(1.2, new MainMenuScene()));
     }, this);
   },
   initGame: function () {
@@ -152,6 +159,13 @@ var GPTouchLayer = cc.Layer.extend({
     this.timelineSp && this.timelineSp.update(this.spendTime);
     if (this.spendTime >= GC.eachTime) {
       this.gameOver(false);
+      if (this.mode === GC.GAME_MODE.MULTI) {
+        var msg = {
+          type: 'over',
+          win: false
+        }
+        proxy.sendMsg(msg);
+      }
     }
   },
   playMusic: function () {
@@ -621,6 +635,13 @@ var GPTouchLayer = cc.Layer.extend({
   checkIsWin: function () {
     if (this.texTilesBatch.children.length === 0) {
       this.gameOver(true);
+      if (this.mode === GC.GAME_MODE.MULTI) {
+        var msg = {
+          type: 'over',
+          win: true
+        };
+        proxy.sendMsg(msg);
+      }
       return true;
     }
     return false;
@@ -717,6 +738,9 @@ var GPTouchLayer = cc.Layer.extend({
 
     cc.eventManager.removeListeners(this.resetSp);
     cc.eventManager.removeListeners(this.compassSp);
+
+    this.removeChild(this.selectNode);
+
   },
   dispose: function () {
     this.state = GC.GAME_STATE.OVER;
@@ -737,7 +761,34 @@ var GPTouchLayer = cc.Layer.extend({
 
   },
   bindEvent: function () {
-    events.on('sync', this.drawOpponent, this);
+
+    events.on('sync', this.syncOpponent, this);
+
+    events.on('over', this.onOver, this);
+
+    events.on('player.abandoned', this.onAbandoned, this);
+  },
+  unbindEvent: function () {
+    events.un('sync', this.syncOpponent);
+
+    events.un('over', this.onOver);
+
+    events.un('player.abandoned', this.onAbandoned);
+  },
+  onOver: function (data) {
+    if (data.win) {
+      this.gameOver(true);
+    } else {
+      this.gameOver(false);
+    }
+  },
+  onAbandoned: function () {
+    if (this.state === GC.GAME_STATE.PLAY) {
+      this.gameOver(true);
+    } else {
+      this.unbindEvent();
+      cc.director.runScene(new cc.TransitionFade(1.2, new MainMenuScene()));
+    }
   },
   syncCurrentState: function (useProp) {
     var msg = {
@@ -752,7 +803,9 @@ var GPTouchLayer = cc.Layer.extend({
     };
     proxy.sendMsg(msg);
   },
-  drawOpponent: function (data) {
+  syncOpponent: function (data) {
+    if (this.state === GC.GAME_STATE.OVER)
+      return;
     var continueHit = data.continueHit;
     var maxContinueHit = data.maxContinueHit;
     if (this.opponentContinueHit != continueHit && continueHit > 0) {
@@ -794,7 +847,7 @@ var GPTouchLayer = cc.Layer.extend({
       this.lbOpponentRest.setString(data.rest);
     }
 
-    if(data.useProp){
+    if (data.useProp) {
       cc.audioEngine.playEffect(res.flystar_music);
     }
 
