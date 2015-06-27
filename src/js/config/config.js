@@ -93,8 +93,8 @@ GC.opponent = {
 };
 
 GC.opponentContinueHit = {
-  x: 30,
-  y: GC.h - 80
+  x: 60,
+  y: GC.h - 50
 };
 
 GC.opponentRest = {

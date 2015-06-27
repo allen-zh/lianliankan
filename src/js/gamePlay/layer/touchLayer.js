@@ -739,10 +739,11 @@ var GPTouchLayer = cc.Layer.extend({
   bindEvent: function () {
     events.on('sync', this.drawOpponent, this);
   },
-  syncCurrentState: function () {
+  syncCurrentState: function (useProp) {
     var msg = {
       type: 'sync',
       data: {
+        useProp: useProp,
         continueHit: this.continueHit,
         maxContinueHit: this.maxContinueHit,
         cells: this.grid.cells,
@@ -756,6 +757,17 @@ var GPTouchLayer = cc.Layer.extend({
     var maxContinueHit = data.maxContinueHit;
     if (this.opponentContinueHit != continueHit && continueHit > 0) {
       this.showOpponetContinueHit(continueHit, maxContinueHit);
+      switch (this.opponentContinueHit) {
+        case GC.continueHit.zhangsheng:
+          cc.audioEngine.playEffect(res.zhangsheng_music);
+          break;
+        case  GC.continueHit.koushao:
+          cc.audioEngine.playEffect(res.koushao_music);
+          break;
+        case GC.continueHit.jianjiao:
+          cc.audioEngine.playEffect(res.jianjiao_music);
+          break;
+      }
     }
     this.opponentContinueHit = continueHit;
 
@@ -774,6 +786,7 @@ var GPTouchLayer = cc.Layer.extend({
 
     if (!this.lbOpponentRest) {
       this.lbOpponentRest = new cc.LabelTTF(data.rest, 'monospace', 12);
+      this.lbOpponentRest.color = cc.color(248, 224, 112);
       this.lbOpponentRest.x = GC.opponentRest.x;
       this.lbOpponentRest.y = GC.opponentRest.y;
       this.addChild(this.lbOpponentRest);
@@ -781,9 +794,13 @@ var GPTouchLayer = cc.Layer.extend({
       this.lbOpponentRest.setString(data.rest);
     }
 
+    if(data.useProp){
+      cc.audioEngine.playEffect(res.flystar_music);
+    }
+
   },
   showOpponetContinueHit: function (continueHit, maxContinueHit) {
-    var continueHitSp = new continueHitSprite(continueHit, maxContinueHit, cc.color(233, 131, 234));
+    var continueHitSp = new continueHitSprite(continueHit, maxContinueHit);
     continueHitSp.x = GC.opponentContinueHit.x;
     continueHitSp.y = GC.opponentContinueHit.y;
     continueHitSp.play();
