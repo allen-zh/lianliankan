@@ -47,22 +47,22 @@ var GPTouchLayer = cc.Layer.extend({
 
   },
   addStartBtn: function () {
-    var startSp = new cc.Sprite('#start.png');
-    startSp.x = GC.start.x;
-    startSp.y = GC.start.y;
-    startSp.setScale(1.5);
-    this.texIconBatch.addChild(startSp);
+    this.startSp = new cc.Sprite('#start.png');
+    this.startSp.x = GC.start.x;
+    this.startSp.y = GC.start.y;
+    this.startSp.setScale(1.5);
+    this.texIconBatch.addChild(this.startSp);
 
-    addClickListener(startSp, function () {
+    addClickListener(this.startSp, function () {
       if (this.mode === GC.GAME_MODE.MULTI) {
         var msg = {
           cmd: 'offline'
         };
         proxy.sendMsg(msg);
 
-        this.stopMusic();
         this.unbindEvent();
       }
+      this.dispose();
       cc.director.runScene(new cc.TransitionFade(1.2, new MainMenuScene()));
     }, this);
   },
@@ -748,6 +748,8 @@ var GPTouchLayer = cc.Layer.extend({
 
     this.stopMusic();
 
+    cc.eventManager.removeListeners(this.startSp);
+
     this.texTilesBatch.removeAllChildren();
     this.texPropBatch.removeAllChildren();
     this.texResultBatch.removeAllChildren();
@@ -759,6 +761,7 @@ var GPTouchLayer = cc.Layer.extend({
     this.removeChild(this.scoreSp);
     this.removeChild(this.restSp);
     this.removeChild(this.selectNode);
+    this.removeChild(this.startSp);
 
   },
   bindEvent: function () {
@@ -790,6 +793,7 @@ var GPTouchLayer = cc.Layer.extend({
       this.removeChild(this.lbOpponentRest);
     } else {
       this.unbindEvent();
+      this.dispose();
       cc.director.runScene(new cc.TransitionFade(1.2, new MainMenuScene()));
     }
   },
