@@ -121,6 +121,9 @@ var GPTouchLayer = cc.Layer.extend({
     this.playMusic();
 
     if (this.mode === GC.GAME_MODE.MULTI) {
+
+      this.opponentContinueHit = -1;
+
       this.bindEvent();
     }
 
@@ -736,18 +739,26 @@ var GPTouchLayer = cc.Layer.extend({
   bindEvent: function () {
     events.on('sync', this.drawOpponent, this);
   },
-  syncCurrentState: function (useProp) {
+  syncCurrentState: function () {
     var msg = {
       type: 'sync',
       data: {
-        useProp: useProp,
         continueHit: this.continueHit,
-        cells: this.grid.cells
+        maxContinueHit: this.maxContinueHit,
+        cells: this.grid.cells,
+        rest: this.rest
       }
     };
     proxy.sendMsg(msg);
   },
   drawOpponent: function (data) {
+    var continueHit = data.continueHit;
+    var maxContinueHit = data.maxContinueHit;
+    if (this.opponentContinueHit != continueHit && continueHit > 0) {
+      this.showOpponetContinueHit(continueHit, maxContinueHit);
+    }
+    this.opponentContinueHit = continueHit;
+
     this.texOpponentTilesBatch.removeAllChildren();
     this.opponentGrid = new Grid(GC.grid.width, GC.grid.height);
     var cells = data.cells;
@@ -760,6 +771,23 @@ var GPTouchLayer = cc.Layer.extend({
         }
       }
     }
+
+    if (!this.lbOpponentRest) {
+      this.lbOpponentRest = new cc.LabelTTF(data.rest, 'monospace', 12);
+      this.lbOpponentRest.x = GC.opponentRest.x;
+      this.lbOpponentRest.y = GC.opponentRest.y;
+      this.addChild(this.lbOpponentRest);
+    } else {
+      this.lbOpponentRest.setString(data.rest);
+    }
+
+  },
+  showOpponetContinueHit: function (continueHit, maxContinueHit) {
+    var continueHitSp = new continueHitSprite(continueHit, maxContinueHit, cc.color(233, 131, 234));
+    continueHitSp.x = GC.opponentContinueHit.x;
+    continueHitSp.y = GC.opponentContinueHit.y;
+    continueHitSp.play();
+    this.addChild(continueHitSp);
   },
   addOpponentTile: function (position, type) {
     var tile = new Tile(position, type);
@@ -770,7 +798,7 @@ var GPTouchLayer = cc.Layer.extend({
     var tileSp = new TileSprite(tile);
     tileSp.x = GC.opponent.x + tile.x * tileSp.width / 6 + tileSp.width / 12;
     tileSp.y = GC.opponent.y - tile.y * tileSp.height / 6 - tileSp.height / 12;
-    tileSp.setScale(2 / 12);
+    tileSp.setScale(1 / 6);
     this.texOpponentTilesBatch.addChild(tileSp);
   }
 });
