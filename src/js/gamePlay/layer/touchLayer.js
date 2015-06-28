@@ -55,7 +55,7 @@ var GPTouchLayer = cc.Layer.extend({
 
     addClickListener(this.startSp, function () {
       if (this.mode === GC.GAME_MODE.MULTI) {
-        if(this.state===GC.GAME_STATE.PLAY) {
+        if (this.state === GC.GAME_STATE.PLAY) {
           var msg = {
             cmd: 'offline'
           };
@@ -164,7 +164,9 @@ var GPTouchLayer = cc.Layer.extend({
       if (this.mode === GC.GAME_MODE.MULTI) {
         var msg = {
           type: 'over',
-          win: false
+          data: {
+            win: false
+          }
         }
         proxy.sendMsg(msg);
       }
@@ -640,7 +642,9 @@ var GPTouchLayer = cc.Layer.extend({
       if (this.mode === GC.GAME_MODE.MULTI) {
         var msg = {
           type: 'over',
-          win: true
+          data: {
+            win: true
+          }
         };
         proxy.sendMsg(msg);
       }
