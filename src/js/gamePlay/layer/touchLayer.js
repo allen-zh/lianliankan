@@ -55,11 +55,12 @@ var GPTouchLayer = cc.Layer.extend({
 
     addClickListener(this.startSp, function () {
       if (this.mode === GC.GAME_MODE.MULTI) {
-        var msg = {
-          cmd: 'offline'
-        };
-        proxy.sendMsg(msg);
-
+        if(this.state===GC.GAME_STATE.PLAY) {
+          var msg = {
+            cmd: 'offline'
+          };
+          proxy.sendMsg(msg);
+        }
         this.unbindEvent();
       }
       this.dispose();
