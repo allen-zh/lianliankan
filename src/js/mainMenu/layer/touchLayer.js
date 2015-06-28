@@ -50,9 +50,9 @@ var MMTouchLayer = cc.Layer.extend({
 
     this.host = false;
 
-    events.on('player.waiting', this.waiting, this);
+    events.on('player.waiting', this.onWaiting, this);
 
-    events.on('player.conected', this.onConected, this);
+    events.on('player.connected', this.onConnected, this);
 
     proxy.connectServer();
     //cc.director.runScene(new cc.TransitionFade(1.2, new GamePlayScene()));
@@ -67,9 +67,9 @@ var MMTouchLayer = cc.Layer.extend({
     this.addChild(lb);
     events.un('player.waiting', this.onWaiting);
   },
-  onConected: function () {
+  onConnected: function () {
     cc.director.runScene(new cc.TransitionFade(1.2, new GamePlayScene(GC.GAME_MODE.MULTI, this.host)));
-    events.un('player.onConected', this.onConected);
+    events.un('player.connected', this.onConnected);
   }
 
 });
