@@ -55,7 +55,7 @@ var GPTouchLayer = cc.Layer.extend({
 
     addClickListener(this.startSp, function () {
       if (this.mode === GC.GAME_MODE.MULTI) {
-        if (this.state === GC.GAME_STATE.PLAY) {
+        if (!this.abandoned) {
           var msg = {
             cmd: 'offline'
           };
@@ -163,7 +163,7 @@ var GPTouchLayer = cc.Layer.extend({
     this.timelineSp && this.timelineSp.update(this.spendTime);
     if (this.spendTime >= GC.eachTime) {
       this.gameOver(false);
-      if (!this.abandoned) {
+      if (this.mode === GC.GAME_MODE.MULTI) {
         var msg = {
           type: 'over',
           data: {
@@ -787,23 +787,15 @@ var GPTouchLayer = cc.Layer.extend({
     events.un('player.abandoned', this.onAbandoned);
   },
   onOver: function (data) {
-    if (data.win) {
-      this.gameOver(true);
-    } else {
-      this.gameOver(false);
-    }
+    this.gameOver(!data.win);
   },
   onAbandoned: function () {
     if (this.state === GC.GAME_STATE.PLAY) {
-      this.abandoned = true;
       this.gameOver(true);
-      this.texOpponentTilesBatch.removeAllChildren();
-      this.removeChild(this.lbOpponentRest);
-    } else {
-      this.unbindEvent();
-      this.dispose();
-      cc.director.runScene(new cc.TransitionFade(1.2, new MainMenuScene()));
     }
+    this.abandoned = true;
+    this.texOpponentTilesBatch.removeAllChildren();
+    this.removeChild(this.lbOpponentRest);
   },
   syncCurrentState: function (useProp) {
     var msg = {
