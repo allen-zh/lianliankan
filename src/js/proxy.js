@@ -17,7 +17,7 @@
       playerStatus = status;
       switch (status) {
         case GC.PLAYER_STATE.CONNECTED:
-          events.emit('player.conected');
+          events.emit('player.connected');
           break;
         case GC.PLAYER_STATE.WAITING:
           events.emit('player.waiting');
