@@ -47,23 +47,29 @@ var MMTouchLayer = cc.Layer.extend({
     cc.director.runScene(new cc.TransitionFade(1.2, new GamePlayScene(GC.GAME_MODE.SINGLE)));
   },
   playMultiGame: function () {
+
+    this.host = false;
+
+    events.on('player.waiting', this.waiting, this);
+
+    events.on('player.conected', this.onConected, this);
+
     proxy.connectServer();
-    var host = false;
-
-    events.on('player.waiting', function () {
-      host = true;
-      var lb = new cc.LabelTTF('正在等待其它玩家加入..', 'monospace', 16);
-      lb.attr({
-        x: GC.w_2 + 50,
-        y: GC.h_2 + 150
-      });
-      this.addChild(lb);
-    }, this);
-
-    events.on('player.conected', function () {
-      cc.director.runScene(new cc.TransitionFade(1.2, new GamePlayScene(GC.GAME_MODE.MULTI, host)));
-    });
     //cc.director.runScene(new cc.TransitionFade(1.2, new GamePlayScene()));
+  },
+  onWaiting: function () {
+    this.host = true;
+    var lb = new cc.LabelTTF('正在等待其它玩家加入..', 'monospace', 16);
+    lb.attr({
+      x: GC.w_2 + 50,
+      y: GC.h_2 + 150
+    });
+    this.addChild(lb);
+    events.un('player.waiting', this.onWaiting);
+  },
+  onConected: function () {
+    cc.director.runScene(new cc.TransitionFade(1.2, new GamePlayScene(GC.GAME_MODE.MULTI, this.host)));
+    events.un('player.onConected', this.onConected);
   }
 
 });
