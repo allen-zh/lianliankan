@@ -56,12 +56,12 @@
         'connect timeout': 8000
         , 'sync disconnect on unload': true
       });
+      bindEvents();
     }
     else {
       socket.connect();
     }
 
-    bindEvents();
   }
 
   function bindEvents() {
