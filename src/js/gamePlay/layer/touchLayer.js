@@ -55,7 +55,7 @@ var GPTouchLayer = cc.Layer.extend({
 
     addClickListener(this.startSp, function () {
       if (this.mode === GC.GAME_MODE.MULTI) {
-        if(this.state===GC.GAME_STATE.PLAY) {
+        if (this.state === GC.GAME_STATE.PLAY) {
           var msg = {
             cmd: 'offline'
           };
@@ -133,6 +133,8 @@ var GPTouchLayer = cc.Layer.extend({
 
       this.opponentContinueHit = -1;
 
+      this.abandoned = false;
+
       this.bindEvent();
     }
 
@@ -161,10 +163,12 @@ var GPTouchLayer = cc.Layer.extend({
     this.timelineSp && this.timelineSp.update(this.spendTime);
     if (this.spendTime >= GC.eachTime) {
       this.gameOver(false);
-      if (this.mode === GC.GAME_MODE.MULTI) {
+      if (!this.abandoned) {
         var msg = {
           type: 'over',
-          win: false
+          data: {
+            win: false
+          }
         }
         proxy.sendMsg(msg);
       }
@@ -640,7 +644,9 @@ var GPTouchLayer = cc.Layer.extend({
       if (this.mode === GC.GAME_MODE.MULTI) {
         var msg = {
           type: 'over',
-          win: true
+          data: {
+            win: true
+          }
         };
         proxy.sendMsg(msg);
       }
@@ -789,6 +795,7 @@ var GPTouchLayer = cc.Layer.extend({
   },
   onAbandoned: function () {
     if (this.state === GC.GAME_STATE.PLAY) {
+      this.abandoned = true;
       this.gameOver(true);
       this.texOpponentTilesBatch.removeAllChildren();
       this.removeChild(this.lbOpponentRest);
