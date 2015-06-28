@@ -133,6 +133,8 @@ var GPTouchLayer = cc.Layer.extend({
 
       this.opponentContinueHit = -1;
 
+      this.abandoned = false;
+
       this.bindEvent();
     }
 
@@ -161,7 +163,7 @@ var GPTouchLayer = cc.Layer.extend({
     this.timelineSp && this.timelineSp.update(this.spendTime);
     if (this.spendTime >= GC.eachTime) {
       this.gameOver(false);
-      if (this.mode === GC.GAME_MODE.MULTI) {
+      if (!this.abandoned) {
         var msg = {
           type: 'over',
           data: {
@@ -793,6 +795,7 @@ var GPTouchLayer = cc.Layer.extend({
   },
   onAbandoned: function () {
     if (this.state === GC.GAME_STATE.PLAY) {
+      this.abandoned = true;
       this.gameOver(true);
       this.texOpponentTilesBatch.removeAllChildren();
       this.removeChild(this.lbOpponentRest);
