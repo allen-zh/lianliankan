@@ -22,6 +22,9 @@ var GPTouchLayer = cc.Layer.extend({
     this.texTilesBatch = new cc.SpriteBatchNode(texTiles);
     this.addChild(this.texTilesBatch);
 
+    this.texOpponentTilesBatch = new cc.SpriteBatchNode(texTiles);
+    this.addChild(this.texOpponentTilesBatch);
+
     var texPipe = cc.textureCache.addImage(res.pipe_png);
     this.texPipeBatch = new cc.SpriteBatchNode(texPipe);
     this.addChild(this.texPipeBatch);
@@ -44,15 +47,24 @@ var GPTouchLayer = cc.Layer.extend({
 
   },
   addStartBtn: function () {
-    var startSp = new cc.Sprite('#start.png');
-    startSp.x = GC.start.x;
-    startSp.y = GC.start.y;
-    startSp.setScale(1.5);
-    this.texIconBatch.addChild(startSp);
+    this.startSp = new cc.Sprite('#start.png');
+    this.startSp.x = GC.start.x;
+    this.startSp.y = GC.start.y;
+    this.startSp.setScale(1.5);
+    this.texIconBatch.addChild(this.startSp);
 
-    addClickListener(startSp, function () {
+    addClickListener(this.startSp, function () {
+      if (this.mode === GC.GAME_MODE.MULTI) {
+        if (!this.abandoned) {
+          var msg = {
+            cmd: 'offline'
+          };
+          proxy.sendMsg(msg);
+        }
+        this.unbindEvent();
+      }
       this.dispose();
-      this.initGame();
+      cc.director.runScene(new cc.TransitionFade(1.2, new MainMenuScene()));
     }, this);
   },
   initGame: function () {
@@ -98,6 +110,8 @@ var GPTouchLayer = cc.Layer.extend({
           }
         };
         proxy.sendMsg(msg);
+
+        this.syncCurrentState();
       }
 
     } else {
@@ -115,6 +129,15 @@ var GPTouchLayer = cc.Layer.extend({
 
     this.playMusic();
 
+    if (this.mode === GC.GAME_MODE.MULTI) {
+
+      this.opponentContinueHit = -1;
+
+      this.abandoned = false;
+
+      this.bindEvent();
+    }
+
   },
   initByOpponent: function (data) {
     this.map = data.map;
@@ -128,6 +151,8 @@ var GPTouchLayer = cc.Layer.extend({
     this.addRest();
 
     this.addProps();
+
+    this.syncCurrentState();
   },
   update: function (dt) {
 
@@ -138,6 +163,15 @@ var GPTouchLayer = cc.Layer.extend({
     this.timelineSp && this.timelineSp.update(this.spendTime);
     if (this.spendTime >= GC.eachTime) {
       this.gameOver(false);
+      if (this.mode === GC.GAME_MODE.MULTI) {
+        var msg = {
+          type: 'over',
+          data: {
+            win: false
+          }
+        }
+        proxy.sendMsg(msg);
+      }
     }
   },
   playMusic: function () {
@@ -246,6 +280,7 @@ var GPTouchLayer = cc.Layer.extend({
         this.selectedTileSp = null;
         this.selectNode.visible = false;
 
+        this.syncCurrentState();
         return;
       }
     }
@@ -571,6 +606,7 @@ var GPTouchLayer = cc.Layer.extend({
         target.update(--this.resetCount);
         this.rebuildTiles();
         cc.audioEngine.playEffect(res.flystar_music);
+        this.syncCurrentState(true);
       }
     }, this);
 
@@ -585,6 +621,7 @@ var GPTouchLayer = cc.Layer.extend({
         target.update(--this.compassCount);
         this.autoDelete();
         cc.audioEngine.playEffect(res.flystar_music);
+        this.syncCurrentState(true);
       }
     }, this);
 
@@ -604,6 +641,15 @@ var GPTouchLayer = cc.Layer.extend({
   checkIsWin: function () {
     if (this.texTilesBatch.children.length === 0) {
       this.gameOver(true);
+      if (this.mode === GC.GAME_MODE.MULTI) {
+        var msg = {
+          type: 'over',
+          data: {
+            win: true
+          }
+        };
+        proxy.sendMsg(msg);
+      }
       return true;
     }
     return false;
@@ -700,11 +746,16 @@ var GPTouchLayer = cc.Layer.extend({
 
     cc.eventManager.removeListeners(this.resetSp);
     cc.eventManager.removeListeners(this.compassSp);
+
+    this.removeChild(this.selectNode);
+
   },
   dispose: function () {
     this.state = GC.GAME_STATE.OVER;
 
     this.stopMusic();
+
+    cc.eventManager.removeListeners(this.startSp);
 
     this.texTilesBatch.removeAllChildren();
     this.texPropBatch.removeAllChildren();
@@ -717,6 +768,114 @@ var GPTouchLayer = cc.Layer.extend({
     this.removeChild(this.scoreSp);
     this.removeChild(this.restSp);
     this.removeChild(this.selectNode);
+    this.removeChild(this.startSp);
 
+  },
+  bindEvent: function () {
+
+    events.on('sync', this.syncOpponent, this);
+
+    events.on('over', this.onOver, this);
+
+    events.on('player.abandoned', this.onAbandoned, this);
+  },
+  unbindEvent: function () {
+    events.un('sync', this.syncOpponent);
+
+    events.un('over', this.onOver);
+
+    events.un('player.abandoned', this.onAbandoned);
+  },
+  onOver: function (data) {
+    this.gameOver(!data.win);
+  },
+  onAbandoned: function () {
+    if (this.state === GC.GAME_STATE.PLAY) {
+      this.gameOver(true);
+    }
+    this.abandoned = true;
+    this.texOpponentTilesBatch.removeAllChildren();
+    this.removeChild(this.lbOpponentRest);
+  },
+  syncCurrentState: function (useProp) {
+    var msg = {
+      type: 'sync',
+      data: {
+        useProp: useProp,
+        continueHit: this.continueHit,
+        maxContinueHit: this.maxContinueHit,
+        cells: this.grid.cells,
+        rest: this.rest
+      }
+    };
+    proxy.sendMsg(msg);
+  },
+  syncOpponent: function (data) {
+    if (this.state === GC.GAME_STATE.OVER)
+      return;
+    var continueHit = data.continueHit;
+    var maxContinueHit = data.maxContinueHit;
+    if (this.opponentContinueHit != continueHit && continueHit > 0) {
+      this.showOpponetContinueHit(continueHit, maxContinueHit);
+      switch (this.opponentContinueHit) {
+        case GC.continueHit.zhangsheng:
+          cc.audioEngine.playEffect(res.zhangsheng_music);
+          break;
+        case  GC.continueHit.koushao:
+          cc.audioEngine.playEffect(res.koushao_music);
+          break;
+        case GC.continueHit.jianjiao:
+          cc.audioEngine.playEffect(res.jianjiao_music);
+          break;
+      }
+    }
+    this.opponentContinueHit = continueHit;
+
+    this.texOpponentTilesBatch.removeAllChildren();
+    this.opponentGrid = new Grid(GC.grid.width, GC.grid.height);
+    var cells = data.cells;
+    for (var i = 0; i < cells.length; i++) {
+      var column = cells[i];
+      for (var j = 0; j < column.length; j++) {
+        var tile = column[j];
+        if (tile) {
+          this.addOpponentTile(tile.position, tile.type);
+        }
+      }
+    }
+
+    if (!this.lbOpponentRest) {
+      this.lbOpponentRest = new cc.LabelTTF(data.rest, 'monospace', 12);
+      this.lbOpponentRest.color = cc.color(248, 224, 112);
+      this.lbOpponentRest.x = GC.opponentRest.x;
+      this.lbOpponentRest.y = GC.opponentRest.y;
+      this.addChild(this.lbOpponentRest);
+    } else {
+      this.lbOpponentRest.setString(data.rest);
+    }
+
+    if (data.useProp) {
+      cc.audioEngine.playEffect(res.flystar_music);
+    }
+
+  },
+  showOpponetContinueHit: function (continueHit, maxContinueHit) {
+    var continueHitSp = new continueHitSprite(continueHit, maxContinueHit);
+    continueHitSp.x = GC.opponentContinueHit.x;
+    continueHitSp.y = GC.opponentContinueHit.y;
+    continueHitSp.play();
+    this.addChild(continueHitSp);
+  },
+  addOpponentTile: function (position, type) {
+    var tile = new Tile(position, type);
+    this.opponentGrid.insertTile(tile);
+    this.createOpponentTileSprite(tile);
+  },
+  createOpponentTileSprite: function (tile) {
+    var tileSp = new TileSprite(tile);
+    tileSp.x = GC.opponent.x + tile.x * tileSp.width / 6 + tileSp.width / 12;
+    tileSp.y = GC.opponent.y - tile.y * tileSp.height / 6 - tileSp.height / 12;
+    tileSp.setScale(1 / 6);
+    this.texOpponentTilesBatch.addChild(tileSp);
   }
 });

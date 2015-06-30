@@ -17,20 +17,20 @@
       playerStatus = status;
       switch (status) {
         case GC.PLAYER_STATE.CONNECTED:
-          events.emit('player.conected');
+          events.emit('player.connected');
           break;
         case GC.PLAYER_STATE.WAITING:
           events.emit('player.waiting');
           break;
         case  GC.PLAYER_STATE.OFFLINE:
           socket.disconnect();
-          socket = null;
+          //socket = null;
           this.setcookie('');
           events.emit('player.offline');
           break;
         case  GC.PLAYER_STATE.ABANDONED:
           socket.disconnect();
-          socket = null;
+          //socket = null;
           this.setcookie('');
           events.emit('player.abandoned');
           break;
@@ -48,15 +48,20 @@
   }
 
   function connectServer() {
-    var url = 'http://172.21.222.98:8093/?' + (cookie.has('_io_sid_') ? 'c=' + cookie.get('_io_sid_') : '');
+    var url = 'http://192.168.1.108:8093/?' + (cookie.has('_io_sid_') ? 'c=' + cookie.get('_io_sid_') : '');
     //var socket = io();
-    socket = io.connect(url, {
-      //'reconnect': false,
-      'connect timeout': 8000
-      , 'sync disconnect on unload': true
-    });
+    if (!socket) {
+      socket = io.connect(url, {
+        //'reconnect': false,
+        'connect timeout': 8000
+        , 'sync disconnect on unload': true
+      });
+      bindEvents();
+    }
+    else {
+      socket.connect();
+    }
 
-    bindEvents();
   }
 
   function bindEvents() {

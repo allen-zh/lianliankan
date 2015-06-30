@@ -1,8 +1,11 @@
 var continueHitSprite = cc.LabelTTF.extend({
 
-  ctor: function (count, maxCount) {
+  ctor: function (count, maxCount, color) {
     var str = '连击：' + count + '/' + maxCount;
     this._super(str, 'monospace', 14);
+    if (color) {
+      this.color = color;
+    }
   },
   play: function () {
 

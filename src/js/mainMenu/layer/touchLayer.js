@@ -43,11 +43,26 @@ var MMTouchLayer = cc.Layer.extend({
 
   },
   playSignleGame: function () {
-
-    cc.director.runScene(new cc.TransitionFade(1.2, new GamePlayScene(GC.GAME_MODE.SINGLE)));
+    if (!this.waiting) {
+      cc.director.runScene(new cc.TransitionFade(1.2, new GamePlayScene(GC.GAME_MODE.SINGLE)));
+    }
   },
   playMultiGame: function () {
+
+    if(this.waiting){
+      return;
+    }
+
+    this.waiting = true;
+
+    this.host = false;
+
+    events.on('player.waiting', this.onWaiting, this);
+
+    events.on('player.connected', this.onConnected, this);
+
     proxy.connectServer();
+<<<<<<< HEAD
     var host = false;
     events.on('player.waiting', function () {
       host = true;
@@ -61,7 +76,28 @@ var MMTouchLayer = cc.Layer.extend({
     events.on('player.conected', function () {
       cc.director.runScene(new cc.TransitionFade(1.2, new GamePlayScene(host)));
     });
+=======
+>>>>>>> snowandmumu/master
     //cc.director.runScene(new cc.TransitionFade(1.2, new GamePlayScene()));
+  },
+  onWaiting: function () {
+
+    this.host = true;
+
+    var lb = new cc.LabelTTF('正在等待其它玩家加入..', 'monospace', 16);
+    lb.attr({
+      x: GC.w_2 + 50,
+      y: GC.h_2 + 150
+    });
+    this.addChild(lb);
+
+  },
+  onConnected: function () {
+    this.waiting = false;
+    cc.director.runScene(new cc.TransitionFade(1.2, new GamePlayScene(GC.GAME_MODE.MULTI, this.host)));
+
+    events.un('player.waiting', this.onWaiting);
+    events.un('player.connected', this.onConnected);
   }
 
 });

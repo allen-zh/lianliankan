@@ -90,7 +90,7 @@ Player.prototype.cmd = function (cmd) {
 Player.prototype.disconnect = function (flag) {
 
   this.status = PLAYER_OFFLINE;
-
+  console.log('disconect');
   if (flag) {
     this.cmd([CMD_SETSTATUS, PLAYER_ABANDONED]);
   } else {

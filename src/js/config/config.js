@@ -87,6 +87,21 @@ GC.continueHit = {
   jianjiao: 50
 };
 
+GC.opponent = {
+  x: 20,
+  y: GC.h - 62
+};
+
+GC.opponentContinueHit = {
+  x: 60,
+  y: GC.h - 50
+};
+
+GC.opponentRest = {
+  x: 30,
+  y: GC.h - 50
+};
+
 GC.type_count = 50;
 
 GC.tileValue = 5;
