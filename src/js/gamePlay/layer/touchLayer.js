@@ -11,8 +11,6 @@ var GPTouchLayer = cc.Layer.extend({
 
     this.initBatchNode();
 
-    this.addStartBtn();
-
     this.initGame();
 
   },
@@ -46,26 +44,36 @@ var GPTouchLayer = cc.Layer.extend({
     this.addChild(this.texPropBatch);
 
   },
-  addStartBtn: function () {
-    this.startSp = new cc.Sprite('#start.png');
-    this.startSp.x = GC.start.x;
-    this.startSp.y = GC.start.y;
-    this.startSp.setScale(1.5);
-    this.texIconBatch.addChild(this.startSp);
+  addMainMenu: function () {
+    var normalSp = new cc.Sprite('#mainbtn.png');
+    var selectedSp = new cc.Sprite('#mainbtn_active.png');
 
-    addClickListener(this.startSp, function () {
-      if (this.mode === GC.GAME_MODE.MULTI) {
-        if (!this.abandoned) {
-          var msg = {
-            cmd: 'offline'
-          };
-          proxy.sendMsg(msg);
+    var menuSp = new cc.MenuItemSprite(
+      normalSp,
+      selectedSp,
+      null,
+      function () {
+        if (this.mode === GC.GAME_MODE.MULTI) {
+          if (!this.abandoned) {
+            var msg = {
+              cmd: 'offline'
+            };
+            proxy.sendMsg(msg);
+          }
+          this.unbindEvent();
         }
-        this.unbindEvent();
-      }
-      this.dispose();
-      cc.director.runScene(new cc.TransitionFade(1.2, new MainMenuScene()));
-    }, this);
+        this.dispose();
+        cc.director.runScene(new cc.TransitionFade(1.2, new MainMenuScene()));
+      }.bind(this)
+    );
+
+    this.mainMenu = new cc.Menu(menuSp);
+    this.mainMenu.attr({
+      x: GC.mainMenu.x,
+      y: GC.mainMenu.y
+    });
+    this.addChild(this.mainMenu);
+
   },
   initGame: function () {
     this.grid = new Grid(GC.grid.width, GC.grid.height);
@@ -118,6 +126,8 @@ var GPTouchLayer = cc.Layer.extend({
 
       events.on('init', this.initByOpponent, this);
     }
+
+    this.addMainMenu();
 
     this.addScore();
 
@@ -755,7 +765,7 @@ var GPTouchLayer = cc.Layer.extend({
 
     this.stopMusic();
 
-    cc.eventManager.removeListeners(this.startSp);
+    //cc.eventManager.removeListeners(this.startSp);
 
     this.texTilesBatch.removeAllChildren();
     this.texPropBatch.removeAllChildren();
@@ -768,7 +778,7 @@ var GPTouchLayer = cc.Layer.extend({
     this.removeChild(this.scoreSp);
     this.removeChild(this.restSp);
     this.removeChild(this.selectNode);
-    this.removeChild(this.startSp);
+    this.removeChild(this.mainMenu);
 
   },
   bindEvent: function () {
