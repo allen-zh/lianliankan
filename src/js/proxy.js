@@ -48,7 +48,7 @@
   }
 
   function connectServer() {
-    var url = 'http://192.168.1.108:8093/?' + (cookie.has('_io_sid_') ? 'c=' + cookie.get('_io_sid_') : '');
+    var url = 'http://172.21.222.102:8093/?' + (cookie.has('_io_sid_') ? 'c=' + cookie.get('_io_sid_') : '');
     //var socket = io();
     if (!socket) {
       socket = io.connect(url, {
