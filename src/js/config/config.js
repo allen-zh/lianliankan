@@ -57,7 +57,7 @@ GC.score = {
   y: 125
 };
 
-GC.start = {
+GC.mainMenu = {
   x: 702,
   y: 50
 };
