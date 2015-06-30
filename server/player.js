@@ -39,7 +39,7 @@ Player.prototype.addSocket = function (socket) {
     socket.on('disconnect', this.onDisconnect);
 
     //Already connected to the server.
-    //this.cmd([CMD_SETSTATUS, this.status]);
+    this.cmd([CMD_SETSTATUS, this.status]);
 
     //If this is a new user
     if (this.status === PLAYER_WAITING) {
@@ -48,10 +48,6 @@ Player.prototype.addSocket = function (socket) {
       this.cmd([CMD_SETCOOKIE, this.uid]);
     }
   }
-};
-
-Player.prototype.sendWaiting = function () {
-  this.cmd([CMD_SETSTATUS, PLAYER_WAITING]);
 };
 
 Player.prototype.setPeer = function (peer) {
@@ -111,13 +107,22 @@ Player.prototype.disconnect = function (flag) {
 };
 
 function onMsg(data) {
-
+  //处理user关心的事件
+  //如果下线 状态置为4
+  var cells = data.data.cells;
+  for (var i = 0; i < cells.length; i++) {
+    var column = cells[i];
+    for (var j = 0; j < column.length; j++) {
+      console.log(column[j]);
+    }
+  }
   if (data.cmd && data.cmd === CMD_OFFLINE) {
     this.disconnect();
-  } else {
-    this.emit('msg', data);
   }
-
+  if (data.msg) {
+    this.emit('msg', data.msg);
+  }
+  //emit some useful events to chatroom
 }
 
 function onDisconnect() {

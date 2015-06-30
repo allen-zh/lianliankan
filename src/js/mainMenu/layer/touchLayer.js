@@ -62,6 +62,22 @@ var MMTouchLayer = cc.Layer.extend({
     events.on('player.connected', this.onConnected, this);
 
     proxy.connectServer();
+<<<<<<< HEAD
+    var host = false;
+    events.on('player.waiting', function () {
+      host = true;
+      var lb = new cc.LabelTTF('正在等待其它玩家加入..', 'monospace', 16);
+      lb.attr({
+        x: GC.w_2 + 50,
+        y: GC.h_2 + 150
+      });
+      this.addChild(lb);
+    }, this);
+    events.on('player.conected', function () {
+      cc.director.runScene(new cc.TransitionFade(1.2, new GamePlayScene(host)));
+    });
+=======
+>>>>>>> snowandmumu/master
     //cc.director.runScene(new cc.TransitionFade(1.2, new GamePlayScene()));
   },
   onWaiting: function () {
